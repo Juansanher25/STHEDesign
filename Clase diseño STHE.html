@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diseño de Intercambiadores STHE - Univ. de América 2026</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js & Plotly (Canvas/WebGL rendering, NO SVG) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    
+    <!-- MathJax for rigorous equation rendering -->
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Google Fonts -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Open+Sans:wght@400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+            scroll-behavior: smooth;
+        }
+        h1, h2, h3, h4, h5, .academic-title {
+            font-family: 'Merriweather', serif;
+        }
+        .math-block {
+            overflow-x: auto;
+            padding: 1rem;
+            background-color: #ffffff;
+            border-left: 4px solid #0284c7;
+            border-radius: 0.375rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            margin: 1rem 0;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            height: 40vh;
+            max-height: 400px;
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom 0.3s;
+        }
+        .nav-link:hover {
+            color: #0284c7;
+        }
+        
+        /* Custom scrollbar for tables */
+        .table-responsive::-webkit-scrollbar { height: 8px; }
+        .table-responsive::-webkit-scrollbar-track { background: #f1f5f9; }
+        .table-responsive::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .table-responsive::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="antialiased text-slate-800 pb-20">
+    <!--
+        PALETTE: Academic Deep Blue & Amber accents
+        HEX Codes: #0f172a (Navy), #0284c7 (Primary Blue), #d97706 (Amber/Gold), #f8fafc (Background).
+        CONFIRMATION: NO SVG used. NO Mermaid JS used. Equations rendered via MathJax. Charts via Canvas/WebGL.
+    -->
+
+    <!-- Navbar -->
+    <nav class="sticky top-0 z-50 bg-white shadow-md border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl">🎓</span>
+                    <span class="font-bold text-[#0f172a] hidden sm:block font-serif">Transferencia de Calor II</span>
+                </div>
+                <div class="flex space-x-6 overflow-x-auto text-sm font-semibold text-slate-600">
+                    <a href="#intro" class="nav-link whitespace-nowrap">Introducción</a>
+                    <a href="#correlaciones" class="nav-link whitespace-nowrap">Correlaciones</a>
+                    <a href="#enfoques" class="nav-link whitespace-nowrap">Kern vs Bell-Delaware</a>
+                    <a href="#ejemplo" class="nav-link whitespace-nowrap">Ejemplo Interactivo</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header / Hero -->
+    <header class="bg-[#0f172a] text-white py-20 px-4 relative overflow-hidden">
+        <div class="absolute -top-24 -right-24 text-[20rem] opacity-5">⚙️</div>
+        <div class="max-w-5xl mx-auto text-center relative z-10">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4 leading-tight">Diseño de Intercambiadores de Calor de Coraza y Tubos</h1>
+            <p class="text-lg md:text-xl text-slate-300 max-w-3xl mx-auto mb-8 font-light">
+                Análisis comparativo de métodos de diseño térmico e hidráulico. Desde las aproximaciones globales hasta la rigurosidad analítica de las corrientes de flujo.
+            </p>
+            <div class="inline-flex flex-wrap justify-center gap-4 text-sm font-medium bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full border border-white/20">
+                <span class="flex items-center">🏛️ Universidad de América</span>
+                <span class="text-[#0284c7] hidden sm:inline">•</span>
+                <span class="flex items-center">👨‍🏫 Ph.D. Juan Sandoval Herrera</span>
+                <span class="text-[#0284c7] hidden sm:inline">•</span>
+                <span class="flex items-center">📅 Periodo Académico 2026</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 space-y-20">
+
+        <!-- 1. Introducción -->
+        <section id="intro" class="scroll-mt-24">
+            <div class="max-w-4xl mx-auto text-center mb-10">
+                <h2 class="text-3xl font-bold text-[#0f172a] mb-4">1. Introducción al Diseño Térmico</h2>
+                <div class="w-24 h-1 bg-[#d97706] mx-auto rounded"></div>
+            </div>
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-10 text-lg leading-relaxed text-slate-700">
+                <p class="mb-4">
+                    El diseño termohidráulico de un intercambiador de coraza y tubos (STHE, por sus siglas en inglés) es un problema complejo de ingeniería que busca determinar el <strong>área de transferencia de calor ($A$)</strong> necesaria para satisfacer un requerimiento térmico ($Q$), al mismo tiempo que se respetan las caídas de presión máximas permisibles ($\Delta P$).
+                </p>
+                <p>
+                    Mientras que el flujo en el interior de los tubos es predecible y cuenta con un área transversal constante, el fluido que viaja por la coraza se enfrenta a un laberinto de deflectores y tubos. Esta geometría variable obliga a los ingenieros a elegir entre métodos de aproximación global (como el <strong>Método de Kern</strong>) o métodos analíticos rigurosos basados en corrientes de fuga (como el <strong>Método de Bell-Delaware</strong>).
+                </p>
+            </div>
+        </section>
+
+        <!-- 2. Comparación de Correlaciones -->
+        <section id="correlaciones" class="scroll-mt-24">
+            <div class="max-w-4xl mx-auto text-center mb-10">
+                <h2 class="text-3xl font-bold text-[#0f172a] mb-4">2. Resumen Analítico de Correlaciones Convectivas</h2>
+                <p class="text-slate-600">Ecuaciones rectoras para el cálculo del número de Nusselt ($Nu$) y coeficientes de película ($h$).</p>
+                <div class="w-24 h-1 bg-[#0284c7] mx-auto rounded mt-4"></div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Lado Tubos -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="bg-[#0f172a] text-white py-4 px-6">
+                        <h3 class="text-xl font-bold flex items-center gap-2"><span>1️⃣</span> Lado de los Tubos (Área Constante)</h3>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        <div>
+                            <h4 class="font-bold text-[#0284c7]">Régimen Laminar: Sieder-Tate</h4>
+                            <p class="text-sm text-slate-500 mb-2">Para $Re \le 2300$. Considera efectos de viscosidad en la pared.</p>
+                            <div class="math-block">
+                                $$Nu = 1.86 \left( Re \cdot Pr \frac{D_i}{L} \right)^{1/3} \left( \frac{\mu}{\mu_w} \right)^{0.14}$$
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-[#0284c7]">Régimen de Transición: Gnielinski</h4>
+                            <p class="text-sm text-slate-500 mb-2">Alta precisión para $3000 \le Re \le 5\times 10^6$. Depende del factor de fricción $f$.</p>
+                            <div class="math-block">
+                                $$Nu = \frac{(f/8)(Re - 1000)Pr}{1 + 12.7(f/8)^{1/2}(Pr^{2/3} - 1)}$$
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-[#0284c7]">Régimen Turbulento: Dittus-Boelter / Petukhov</h4>
+                            <p class="text-sm text-slate-500 mb-2">Ecuación fundamental clásica (Dittus-Boelter):</p>
+                            <div class="math-block">
+                                $$Nu = 0.023 \cdot Re^{0.8} \cdot Pr^n$$
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lado Coraza -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="bg-[#d97706] text-white py-4 px-6">
+                        <h3 class="text-xl font-bold flex items-center gap-2"><span>2️⃣</span> Lado de la Coraza (Área Variable)</h3>
+                    </div>
+                    <div class="p-6 space-y-6">
+                        <div>
+                            <h4 class="font-bold text-[#d97706]">Aproximación Global: Método de Kern</h4>
+                            <p class="text-sm text-slate-500 mb-2">Usa un diámetro equivalente ($D_e$) y área representativa ($A_s$).</p>
+                            <div class="math-block">
+                                $$Nu = 0.36 \cdot Re_e^{0.55} \cdot Pr^{1/3} \left( \frac{\mu}{\mu_w} \right)^{0.14}$$
+                            </div>
+                            <p class="text-sm text-slate-500 mt-2">Donde el coeficiente es: $h_o = \frac{Nu \cdot k}{D_e}$</p>
+                        </div>
+                        <div class="mt-8 border-t border-slate-100 pt-6">
+                            <h4 class="font-bold text-[#d97706]">Rigurosidad Analítica: Método Bell-Delaware</h4>
+                            <p class="text-sm text-slate-500 mb-2">Penaliza un coeficiente de flujo cruzado ideal ($h_{ideal}$) basado en tolerancias mecánicas.</p>
+                            <div class="math-block">
+                                $$h_{coraza} = h_{ideal} \cdot J_c \cdot J_l \cdot J_b \cdot J_s \cdot J_r$$
+                            </div>
+                            <ul class="text-sm text-slate-600 mt-4 space-y-1 list-disc list-inside">
+                                <li>$J_c$: Corrección por ventana del deflector.</li>
+                                <li>$J_l$: Corrección por fugas (A y E).</li>
+                                <li>$J_b$: Corrección por derivación (Bypass).</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Enfoque de los Dos Métodos -->
+        <section id="enfoques" class="scroll-mt-24">
+            <div class="max-w-4xl mx-auto text-center mb-10">
+                <h2 class="text-3xl font-bold text-[#0f172a] mb-4">3. Enfoque Teórico de los Métodos</h2>
+                <div class="w-24 h-1 bg-[#0284c7] mx-auto rounded"></div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h3 class="text-2xl font-bold text-[#0f172a] mb-4">El Modelo de Flujo de Tinker</h3>
+                    <p class="text-slate-700 mb-6">
+                        El método de Bell-Delaware se fundamenta en el modelo de <strong>Townsend Tinker (1951)</strong>, el cual demostró que el flujo en la coraza no es unidimensional. Debido a las tolerancias de fabricación, el flujo se fractura en 5 corrientes principales.
+                    </p>
+                    <div class="bg-blue-50 border-l-4 border-[#0284c7] p-5 rounded-r-lg">
+                        <ul class="space-y-3 text-slate-700">
+                            <li><span class="font-bold text-[#0f172a]">Corriente B (Ideal):</span> Atraviesa el haz de tubos. Es la única altamente efectiva térmica y dinámicamente.</li>
+                            <li><span class="font-bold text-[#0f172a]">Corrientes A & E (Fugas):</span> Flujo parásito por los agujeros de los tubos y entre el deflector y la coraza.</li>
+                            <li><span class="font-bold text-[#0f172a]">Corrientes C & F (Derivación):</span> Flujo por los espacios libres perimetrales que no toca los tubos.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-100">
+                    <h4 class="text-center font-bold text-slate-600 mb-2">Distribución Típica del Flujo en la Coraza</h4>
+                    <div class="chart-container" style="height: 350px;">
+                        <canvas id="tinkerChart"></canvas>
+                    </div>
+                    <p class="text-center text-xs text-slate-400 mt-4">Visualización de las ineficiencias tratadas por Bell-Delaware vs. la asunción de Kern (100% ideal).</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Comparación del Procedimiento -->
+        <section id="procedimiento" class="scroll-mt-24">
+            <div class="max-w-4xl mx-auto text-center mb-10">
+                <h2 class="text-3xl font-bold text-[#0f172a] mb-4">4. Secuencia de Cálculo: Kern vs Bell-Delaware</h2>
+                <p class="text-slate-600">Comparación de la metodología paso a paso para la evaluación del lado de la coraza.</p>
+                <div class="w-24 h-1 bg-[#d97706] mx-auto rounded mt-4"></div>
+            </div>
+
+            <div class="table-responsive bg-white rounded-xl shadow-md border border-slate-200 overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[800px]">
+                    <thead>
+                        <tr class="bg-[#0f172a] text-white">
+                            <th class="p-4 font-bold border-b border-slate-700 w-1/4">Objetivo Analítico</th>
+                            <th class="p-4 font-bold border-b border-slate-700 w-1/3 border-l border-slate-600">Método de Kern (Simplificado)</th>
+                            <th class="p-4 font-bold border-b border-slate-700 w-5/12 border-l border-slate-600">Método Bell-Delaware (Riguroso)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm">
+                        <tr class="border-b border-slate-200 hover:bg-slate-50">
+                            <td class="p-4 font-semibold text-slate-700">1. Áreas de Flujo Transversal</td>
+                            <td class="p-4 border-l border-slate-200">
+                                Única área representativa (Ecuador):<br>
+                                $$A_s = \frac{D_s \cdot C \cdot B}{P_t}$$
+                            </td>
+                            <td class="p-4 border-l border-slate-200 bg-blue-50/30">
+                                Múltiples áreas de flujo real:<br>
+                                $$S_c, S_w, S_{tb}, S_{sb}, S_b$$
+                            </td>
+                        </tr>
+                        <tr class="border-b border-slate-200 hover:bg-slate-50">
+                            <td class="p-4 font-semibold text-slate-700">2. Diámetro Característico</td>
+                            <td class="p-4 border-l border-slate-200">
+                                Diámetro equivalente dependiente del arreglo:<br>
+                                $$D_{e} = \frac{4(P_t^2 - \pi d_o^2/4)}{\pi d_o} \text{ (Cuadrado)}$$
+                            </td>
+                            <td class="p-4 border-l border-slate-200 bg-blue-50/30">
+                                Usa el diámetro exterior real:<br>
+                                $$D_{característico} = d_o$$
+                            </td>
+                        </tr>
+                        <tr class="border-b border-slate-200 hover:bg-slate-50">
+                            <td class="p-4 font-semibold text-slate-700">3. Coeficiente Convectivo ($h$)</td>
+                            <td class="p-4 border-l border-slate-200">
+                                Correlación empírica directa con $Re_e$:<br>
+                                $$h_o = \frac{Nu \cdot k}{D_e}$$
+                            </td>
+                            <td class="p-4 border-l border-slate-200 bg-blue-50/30">
+                                Cálculo ideal penalizado por Factores J:<br>
+                                $$h_{coraza} = h_{ideal} \cdot \prod J_i$$
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-slate-50">
+                            <td class="p-4 font-semibold text-slate-700">4. Caída de Presión ($\Delta P$)</td>
+                            <td class="p-4 border-l border-slate-200">
+                                Ecuación de fricción global simple:<br>
+                                $$\Delta P_s = \frac{f_s G_s^2 D_s (N_b + 1)}{2 \rho D_e (\mu/\mu_w)^{0.14}}$$
+                            </td>
+                            <td class="p-4 border-l border-slate-200 bg-blue-50/30">
+                                Suma de ventanas y flujo cruzado + Factores R:<br>
+                                $$\Delta P_c = [ (N_b-1)\Delta P_{b,i} R_b + N_b \Delta P_{w,i} ] R_l + \dots$$
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 5. Ejemplo Práctico: Método Kern -->
+        <section id="ejemplo" class="scroll-mt-24">
+            <div class="bg-[#0f172a] rounded-3xl shadow-2xl overflow-hidden">
+                <div class="p-8 md:p-10 text-white border-b border-slate-700">
+                    <h2 class="text-3xl font-bold mb-4">5. Simulador Interactivo: Método de Kern</h2>
+                    <p class="text-slate-300">Modifica los parámetros geométricos y operativos para observar instantáneamente cómo cambian la velocidad de masa, el número de Reynolds, el coeficiente convectivo y la caída de presión en el lado de la coraza.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-12 bg-white">
+                    <!-- Controles -->
+                    <div class="lg:col-span-4 p-8 bg-slate-50 border-r border-slate-200 space-y-6">
+                        <h3 class="font-bold text-[#0f172a] text-lg mb-4 border-b pb-2">Parámetros de Entrada</h3>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Flujo Másico ($\dot{m}$) [kg/s]</label>
+                            <input type="range" id="input-m" min="5" max="50" step="1" value="15" class="w-full accent-[#0284c7]">
+                            <div class="text-right text-[#0284c7] font-mono font-bold" id="val-m">15.0</div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Diám. Coraza ($D_s$) [m]</label>
+                            <input type="range" id="input-ds" min="0.3" max="1.5" step="0.05" value="0.5" class="w-full accent-[#0284c7]">
+                            <div class="text-right text-[#0284c7] font-mono font-bold" id="val-ds">0.50</div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Espaciado Deflectores ($B$) [m]</label>
+                            <input type="range" id="input-b" min="0.1" max="0.8" step="0.05" value="0.25" class="w-full accent-[#0284c7]">
+                            <div class="text-right text-[#0284c7] font-mono font-bold" id="val-b">0.25</div>
+                        </div>
+
+                        <div class="pt-4 border-t border-slate-200">
+                            <p class="text-xs text-slate-500 mb-2"><strong>Constantes asimiladas:</strong> Tubos OD $d_o=0.0254$ m, Pitch cuadrado $P_t=0.0317$ m, Fluido (Agua) a 40°C ($\mu=6.5\times10^{-4}$ Pa·s, $k=0.63$ W/m·K, $Pr=4.3$). Fricción $f_s=0.04$, Deflectores $N_b=10$.</p>
+                        </div>
+                    </div>
+
+                    <!-- Resultados Matemáticos y Gráfico -->
+                    <div class="lg:col-span-8 p-8 flex flex-col space-y-8">
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="bg-white border border-slate-200 rounded-xl p-4 text-center shadow-sm">
+                                <p class="text-xs text-slate-500 font-bold uppercase mb-1">Área Ecuatorial ($A_s$)</p>
+                                <p class="text-xl font-bold text-[#0f172a]" id="res-as">0.00</p>
+                                <p class="text-xs text-slate-400">m²</p>
+                            </div>
+                            <div class="bg-white border border-slate-200 rounded-xl p-4 text-center shadow-sm">
+                                <p class="text-xs text-slate-500 font-bold uppercase mb-1">Reynolds ($Re_e$)</p>
+                                <p class="text-xl font-bold text-[#0284c7]" id="res-re">0</p>
+                                <p class="text-xs text-slate-400">Adimensional</p>
+                            </div>
+                            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-center shadow-sm">
+                                <p class="text-xs text-blue-600 font-bold uppercase mb-1">Coef. ($h_o$)</p>
+                                <p class="text-2xl font-bold text-[#0284c7]" id="res-ho">0</p>
+                                <p class="text-xs text-blue-500">W/m²·K</p>
+                            </div>
+                            <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center shadow-sm">
+                                <p class="text-xs text-amber-700 font-bold uppercase mb-1">Caída Presión ($\Delta P_s$)</p>
+                                <p class="text-2xl font-bold text-[#d97706]" id="res-dp">0.0</p>
+                                <p class="text-xs text-amber-600">kPa</p>
+                            </div>
+                        </div>
+
+                        <div class="flex-grow bg-white border border-slate-200 rounded-xl p-4">
+                            <h4 class="font-bold text-center text-slate-600 mb-2">Comportamiento Dinámico: h_o vs. Flujo Másico</h4>
+                            <div id="plotly-kern" class="w-full h-64"></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. Conclusiones -->
+        <section id="conclusiones" class="scroll-mt-24">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+                <div class="md:col-span-5 bg-[#d97706] text-white rounded-2xl p-8 shadow-lg flex flex-col justify-center">
+                    <h2 class="text-3xl font-bold mb-4 font-serif">Conclusiones</h2>
+                    <p class="text-amber-50 mb-4">El rigor en el diseño de intercambiadores es fundamental para la seguridad y eficiencia industrial.</p>
+                </div>
+                <div class="md:col-span-7 bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
+                    <ul class="space-y-4 text-slate-700">
+                        <li class="flex items-start">
+                            <span class="text-[#0284c7] text-xl mr-3 leading-none">✅</span>
+                            <p><strong>Diseño Preliminar:</strong> El Método de Kern es una herramienta inestimable para estimaciones rápidas de tamaño y costos pre-proyecto, asumiendo un margen de seguridad conservador.</p>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-[#0284c7] text-xl mr-3 leading-none">✅</span>
+                            <p><strong>Optimización Geométrica:</strong> El Método de Bell-Delaware, mediante la evaluación explícita de corrientes (Tinker), permite justificar la inclusión de <em>tiras de sellado</em> y reducir holguras mecánicas.</p>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-[#0284c7] text-xl mr-3 leading-none">✅</span>
+                            <p><strong>Integración de Software:</strong> En la ingeniería contemporánea (2026), los simuladores térmicos utilizan las bases analíticas de Bell-Delaware combinadas con dinámica de fluidos computacional (CFD).</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 7. Bibliografía -->
+    <footer class="bg-[#0f172a] text-slate-400 py-12 mt-20 border-t-4 border-[#0284c7]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-8">
+                <h3 class="text-lg font-bold text-white mb-4 uppercase tracking-wider font-serif">Bibliografía IEEE</h3>
+                <ol class="list-decimal list-inside space-y-2 text-sm">
+                    <li>T. L. Bergman, A. S. Lavine, F. P. Incropera, and D. P. DeWitt, <em>Fundamentals of Heat and Mass Transfer</em>, 7th ed. Hoboken, NJ, USA: John Wiley & Sons, 2011.</li>
+                    <li>D. Q. Kern, <em>Process Heat Transfer</em>. New York, NY, USA: McGraw-Hill, 1950.</li>
+                    <li>R. Sinnott and G. Towler, <em>Chemical Engineering Design: Principles, Practice and Economics of Plant and Process Design</em>, 2nd ed. Oxford, UK: Butterworth-Heinemann, 2012.</li>
+                    <li>T. Tinker, "Shell Side Characteristics of Shell and Tube Heat Exchangers," in <em>General Discussion on Heat Transfer</em>, IMechE/ASME, 1951.</li>
+                </ol>
+            </div>
+            <div class="border-t border-slate-700 pt-6 flex flex-col md:flex-row justify-between items-center text-xs">
+                <p>&copy; 2026 Universidad de América - Dept. de Ingeniería. Todos los derechos reservados.</p>
+                <p class="mt-2 md:mt-0">Renderizado mediante MathJax y WebGL. SPA Académica.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Set global styles for charts
+        Chart.defaults.font.family = "'Open Sans', sans-serif";
+        Chart.defaults.color = "#475569";
+
+        // 1. Chart.js Doughnut Chart (Tinker Streams)
+        const wrapLabel = (label) => {
+            if (label.length <= 16) return label;
+            const words = label.split(' ');
+            const lines = [];
+            let currentLine = '';
+            for (let word of words) {
+                if ((currentLine + word).length > 16) {
+                    if (currentLine.length > 0) lines.push(currentLine.trim());
+                    currentLine = word + ' ';
+                } else {
+                    currentLine += word + ' ';
+                }
+            }
+            if (currentLine.trim().length > 0) lines.push(currentLine.trim());
+            return lines;
+        };
+
+        const tinkerLabelsRaw = [
+            "Corriente B (Flujo Principal Ideal)",
+            "Corriente A (Fuga Tubo-Deflector)",
+            "Corriente E (Fuga Coraza-Deflector)",
+            "Corriente C (Derivación Haz-Coraza)",
+            "Corriente F (Derivación Partición)"
+        ];
+        
+        const tinkerLabelsWrapped = tinkerLabelsRaw.map(wrapLabel);
+
+        const ctxTinker = document.getElementById('tinkerChart').getContext('2d');
+        new Chart(ctxTinker, {
+            type: 'doughnut',
+            data: {
+                labels: tinkerLabelsWrapped,
+                datasets: [{
+                    data: [45, 15, 15, 15, 10],
+                    backgroundColor: ['#0f172a', '#0284c7', '#38bdf8', '#d97706', '#fcd34d'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff',
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                return Array.isArray(label) ? label.join(' ') : label;
+                            }
+                        }
+                    },
+                    legend: {
+                        position: 'right',
+                        labels: { boxWidth: 12, padding: 15 }
+                    }
+                }
+            }
+        });
+
+        // 2. Interactive Kern Calculator Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            // Constants
+            const d_o = 0.0254; // m
+            const P_t = 0.03175; // m
+            const mu = 0.00065; // Pa.s
+            const cp = 4180; // J/kg.K
+            const k = 0.63; // W/m.K
+            const rho = 992; // kg/m3
+            const Pr = (cp * mu) / k; // ~ 4.31
+            const N_b = 10;
+            const f_s = 0.04;
+
+            // Geometry derived
+            const C = P_t - d_o;
+            const D_e = (4 * (Math.pow(P_t, 2) - (Math.PI * Math.pow(d_o, 2) / 4))) / (Math.PI * d_o); // Square arrangement
+
+            // DOM Elements
+            const inM = document.getElementById('input-m');
+            const inDs = document.getElementById('input-ds');
+            const inB = document.getElementById('input-b');
+            
+            const valM = document.getElementById('val-m');
+            const valDs = document.getElementById('val-ds');
+            const valB = document.getElementById('val-b');
+            
+            const resAs = document.getElementById('res-as');
+            const resRe = document.getElementById('res-re');
+            const resHo = document.getElementById('res-ho');
+            const resDp = document.getElementById('res-dp');
+
+            // Plotly Data structures
+            const plotDataX = Array.from({length: 46}, (_, i) => i + 5); // mass flows from 5 to 50
+            
+            const calculateKern = (m, D_s, B) => {
+                const A_s = (D_s * C * B) / P_t;
+                const G_s = m / A_s;
+                const Re_e = (G_s * D_e) / mu;
+                const Nu = 0.36 * Math.pow(Re_e, 0.55) * Math.pow(Pr, 1/3); // Assuming mu/mu_w = 1
+                const h_o = (Nu * k) / D_e;
+                const dP = (f_s * Math.pow(G_s, 2) * D_s * (N_b + 1)) / (2 * rho * D_e); // Pa
+                return { A_s, Re_e, h_o, dP_kPa: dP / 1000 };
+            };
+
+            const updateUI = () => {
+                const m = parseFloat(inM.value);
+                const D_s = parseFloat(inDs.value);
+                const B = parseFloat(inB.value);
+
+                valM.textContent = m.toFixed(1);
+                valDs.textContent = D_s.toFixed(2);
+                valB.textContent = B.toFixed(2);
+
+                const res = calculateKern(m, D_s, B);
+
+                resAs.textContent = res.A_s.toFixed(4);
+                resRe.textContent = Math.round(res.Re_e).toLocaleString('es-ES');
+                resHo.textContent = Math.round(res.h_o).toLocaleString('es-ES');
+                resDp.textContent = res.dP_kPa.toFixed(1);
+
+                updatePlot(D_s, B, m);
+            };
+
+            const updatePlot = (D_s, B, currentM) => {
+                const plotDataY = plotDataX.map(mass => calculateKern(mass, D_s, B).h_o);
+                
+                // Get the y value for the current marker
+                const currentY = calculateKern(currentM, D_s, B).h_o;
+
+                const trace1 = {
+                    x: plotDataX,
+                    y: plotDataY,
+                    mode: 'lines',
+                    line: { color: '#0f172a', width: 3 },
+                    name: 'h_o vs m'
+                };
+
+                const trace2 = {
+                    x: [currentM],
+                    y: [currentY],
+                    mode: 'markers',
+                    marker: { size: 12, color: '#d97706', line: { color: 'white', width: 2 } },
+                    name: 'Punto Actual'
+                };
+
+                const layout = {
+                    margin: { l: 40, r: 20, t: 10, b: 30 },
+                    xaxis: { title: 'Flujo Másico (kg/s)' },
+                    yaxis: { title: 'h_o (W/m²K)' },
+                    showlegend: false,
+                    paper_bgcolor: 'transparent',
+                    plot_bgcolor: 'transparent'
+                };
+
+                Plotly.react('plotly-kern', [trace1, trace2], layout, {displayModeBar: false, responsive: true});
+            };
+
+            // Event Listeners
+            inM.addEventListener('input', updateUI);
+            inDs.addEventListener('input', updateUI);
+            inB.addEventListener('input', updateUI);
+
+            // Initial calculation
+            updateUI();
+        });
+    </script>
+</body>
+</html>
